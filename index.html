@@ -1,0 +1,1173 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#EEF1F5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#11141C" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Marca-texto">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<title>Marca-texto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Spectral:wght@500;600&display=swap">
+<style>
+/* Layout: app de uma coluna para celular, barra de abas fixa embaixo, folhas que sobem de baixo para formulários.
+   Identidade: papel frio, caneta azul e marca-texto como código de estado dos tópicos. */
+:root{
+  --paper:#EEF1F5; --surface:#FFFFFF; --sunk:#E3E8EF; --ink:#18203A; --ink-2:#555E78; --ink-3:#8790A8; --line:#D5DBE5;
+  --pen:#2B44C9; --pen-soft:#DDE3FB; --on-pen:#FFFFFF;
+  --hl-yellow:#FFE45C; --hl-green:#A6E9B3; --hl-pink:#FFB8D4; --hl-ink:#18203A;
+  --good:#1D7A49; --warn:#A85A12; --bad:#C0284C;
+  --heat-0:#E3E8EF; --heat-1:#C2CDF5; --heat-2:#8C9FEA; --heat-3:#5268D9; --heat-4:#2B44C9;
+  --f-display:"Spectral", Georgia, "Times New Roman", serif;
+  --f-body:"Public Sans", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --r-sm:8px; --r-md:14px; --r-lg:22px;
+  color-scheme:light;
+  padding-top:env(safe-area-inset-top,0px);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#11141C; --surface:#1A1F2B; --sunk:#222838; --ink:#E8EBF3; --ink-2:#A6AEC4; --ink-3:#717A92; --line:#2D3446;
+  --pen:#8EA0FF; --pen-soft:#27305A; --on-pen:#0F1430;
+  --hl-yellow:#F2D64B; --hl-green:#8FD9A0; --hl-pink:#F59DC0; --hl-ink:#11141C;
+  --good:#5FCB8E; --warn:#E3A35A; --bad:#FF7B99;
+  --heat-0:#222838; --heat-1:#2E3A6E; --heat-2:#4256A8; --heat-3:#6A7FE0; --heat-4:#9DAEFF;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --paper:#11141C; --surface:#1A1F2B; --sunk:#222838; --ink:#E8EBF3; --ink-2:#A6AEC4; --ink-3:#717A92; --line:#2D3446;
+  --pen:#8EA0FF; --pen-soft:#27305A; --on-pen:#0F1430;
+  --hl-yellow:#F2D64B; --hl-green:#8FD9A0; --hl-pink:#F59DC0; --hl-ink:#11141C;
+  --good:#5FCB8E; --warn:#E3A35A; --bad:#FF7B99;
+  --heat-0:#222838; --heat-1:#2E3A6E; --heat-2:#4256A8; --heat-3:#6A7FE0; --heat-4:#9DAEFF;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--paper)}
+body{margin:0;color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;font-variant-numeric:tabular-nums}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--pen);outline-offset:2px;border-radius:6px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+
+.app{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:8px calc(96px + env(safe-area-inset-bottom,0px))}
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding-block:14px 6px}
+.top h1{font-family:var(--f-display);font-weight:600;font-size:30px;line-height:1.1;margin:0;letter-spacing:-.01em;text-wrap:balance}
+.top .sub{color:var(--ink-2);font-size:14px;margin:2px 0 0}
+.section{margin-top:26px}
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px}
+.sec-head h2{font-size:17px;font-weight:700;margin:0}
+.sec-head .meta{font-size:13px;color:var(--ink-2)}
+.muted{color:var(--ink-2)}
+.small{font-size:13px}
+.tiny{font-size:12px;color:var(--ink-3)}
+
+/* marca-texto */
+.hl{padding:0 .28em;margin:0 -.1em;border-radius:.25em .6em .35em .7em;-webkit-box-decoration-break:clone;box-decoration-break:clone;color:var(--hl-ink)}
+.hl-y{background:linear-gradient(176deg,transparent 6%,var(--hl-yellow) 8%,var(--hl-yellow) 92%,transparent 94%)}
+.hl-g{background:linear-gradient(176deg,transparent 6%,var(--hl-green) 8%,var(--hl-green) 92%,transparent 94%)}
+.hl-p{background:linear-gradient(176deg,transparent 6%,var(--hl-pink) 8%,var(--hl-pink) 92%,transparent 94%)}
+
+/* contagem regressiva */
+.countdowns{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.cd{display:flex;align-items:baseline;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 12px 6px 10px;font-size:14px}
+.cd b{font-family:var(--f-display);font-size:20px;font-weight:600;line-height:1}
+.cd span{color:var(--ink-2)}
+
+/* blocos do dia */
+.block{background:var(--surface);border-radius:var(--r-lg);padding:16px 16px 14px;border:1px solid var(--line)}
+.blocks{display:grid;gap:12px}
+.block-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.block h3{font-family:var(--f-display);font-size:22px;font-weight:600;margin:0;line-height:1.2}
+.block .mins{font-weight:700;font-size:15px;white-space:nowrap;color:var(--ink-2)}
+.why{margin:6px 0 0;font-size:13.5px;color:var(--ink-2)}
+.tlist{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:7px}
+.tlist li{display:flex;gap:9px;font-size:15px;line-height:1.35;min-width:0}
+.tlist .cod{color:var(--ink-3);font-size:13px;min-width:2.2em;padding-top:1px}
+.tlist .tx{min-width:0;overflow-wrap:anywhere}
+.block-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.block.done{background:transparent;border-style:dashed}
+.block.done h3 .hl{color:var(--hl-ink)}
+
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:9px 16px;font-weight:600;font-size:15px;display:inline-flex;align-items:center;gap:7px;min-height:42px}
+.btn.primary{background:var(--pen);border-color:var(--pen);color:var(--on-pen)}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--bad);border-color:currentColor;background:transparent}
+.btn.full{width:100%;justify-content:center}
+.btn svg{width:18px;height:18px}
+.linkbtn{border:0;background:none;color:var(--pen);font-weight:600;padding:4px 0;font-size:14px}
+
+/* revisões */
+.revs{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden}
+.rev{padding:12px 14px;border-top:1px solid var(--line);display:grid;gap:8px}
+.rev:first-child{border-top:0}
+.rev .disc{font-size:12.5px;color:var(--ink-2)}
+.rev .t{font-size:15px;line-height:1.35;overflow-wrap:anywhere}
+.grades{display:flex;gap:6px;flex-wrap:wrap}
+.grade{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:6px 12px;font-size:13.5px;font-weight:600;min-height:36px}
+.grade:active{background:var(--pen-soft)}
+.late{color:var(--bad);font-weight:600}
+
+/* timer */
+.timer{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;margin:6px -4px 0;background:var(--pen);color:var(--on-pen);border-radius:var(--r-md);padding:10px 12px 10px 16px;display:flex;align-items:center;gap:12px}
+.timer .clock{font-family:var(--f-display);font-size:26px;font-weight:600;line-height:1}
+.timer .what{flex:1;min-width:0;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:.92}
+.timer button{background:var(--on-pen);color:var(--pen);border:0;border-radius:999px;padding:8px 14px;font-weight:700}
+
+/* cartões vazios e avisos */
+.empty{background:var(--surface);border:1px dashed var(--ink-3);border-radius:var(--r-lg);padding:22px 18px;display:grid;gap:12px}
+.empty h3{font-family:var(--f-display);font-size:22px;margin:0;font-weight:600}
+.empty p{margin:0;color:var(--ink-2)}
+.demo-bar{background:var(--hl-yellow);color:var(--hl-ink);border-radius:var(--r-md);padding:10px 14px;font-size:14px;display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px}
+.demo-bar button{background:none;border:0;font-weight:700;text-decoration:underline;color:var(--hl-ink);padding:4px}
+
+/* plataformas */
+.plats{display:grid;gap:8px}
+.plat{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:12px 14px;text-decoration:none;color:var(--ink)}
+.plat .ini{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-weight:700;background:var(--pen-soft);color:var(--pen);flex:none}
+.plat .nm{font-weight:600}
+.plat .url{font-size:12.5px;color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.plat > div{min-width:0;flex:1}
+.plat svg{width:18px;height:18px;color:var(--ink-3);flex:none}
+.plat-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px}
+.plat-row a{flex:none;text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-weight:600;font-size:14px}
+
+/* edital */
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 4px;scrollbar-width:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-size:14px;font-weight:600;color:var(--ink-2)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--ink-2);margin-top:12px}
+.disc{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);margin-top:10px;overflow:hidden}
+.disc-h{width:100%;border:0;background:none;text-align:left;padding:14px 16px;display:grid;gap:8px}
+.disc-h .row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.disc-h .nm{font-weight:700;font-size:16px;min-width:0;overflow-wrap:anywhere}
+.disc-h .ct{font-size:13.5px;color:var(--ink-2);white-space:nowrap}
+.bar{height:7px;border-radius:99px;background:var(--sunk);overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.bar .g{background:var(--hl-green)} .bar .y{background:var(--hl-yellow)} .bar .p{background:var(--hl-pink)}
+.disc-body{border-top:1px solid var(--line);padding:6px 0 12px}
+.trow{width:100%;display:flex;gap:10px;align-items:flex-start;padding:9px 16px;border:0;background:none;text-align:left}
+.trow:active{background:var(--sunk)}
+.trow .cod{color:var(--ink-3);font-size:13px;min-width:2.4em;padding-top:2px}
+.trow .tx{flex:1;min-width:0;font-size:15px;line-height:1.38;overflow-wrap:anywhere}
+.trow .when{font-size:12px;color:var(--ink-3);white-space:nowrap;padding-top:3px}
+.trow .when.late{color:var(--bad)}
+.disc-tools{display:flex;gap:8px;align-items:center;padding:8px 16px 0;flex-wrap:wrap}
+.disc-tools label{font-size:13px;color:var(--ink-2);display:flex;align-items:center;gap:6px}
+.disc-tools input{width:64px}
+.addt{display:flex;gap:8px;padding:6px 16px 0}
+.addt input{flex:1;min-width:0}
+
+/* desempenho */
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:12px 14px}
+.kpi .v{font-family:var(--f-display);font-size:28px;font-weight:600;line-height:1.1}
+.kpi .l{font-size:13px;color:var(--ink-2)}
+.kpi .d{font-size:12.5px;margin-top:2px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px 14px 12px}
+.chart{width:100%;height:auto;display:block;overflow:visible}
+.chart text{fill:var(--ink-2);font-family:var(--f-body);font-size:11px}
+.accrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center;padding:7px 0;border-top:1px solid var(--line)}
+.accrow:first-child{border-top:0}
+.accrow .nm{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.accrow .pc{font-weight:700;font-size:14px}
+.accrow .track{grid-column:1/-1;height:8px;border-radius:99px;background:var(--sunk);position:relative;overflow:hidden}
+.accrow .track i{position:absolute;left:0;top:0;bottom:0;border-radius:99px}
+.accrow .n{grid-column:1/-1;font-size:12px;color:var(--ink-3);margin-top:-2px}
+.proj{display:grid;gap:4px;padding:10px 0;border-top:1px solid var(--line)}
+.proj:first-of-type{border-top:0;padding-top:2px}
+.proj .nm{font-weight:700}
+.status-good{color:var(--good)} .status-warn{color:var(--warn)} .status-bad{color:var(--bad)}
+
+/* listas genéricas (Mais) */
+.list{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden}
+.li{width:100%;display:flex;align-items:center;gap:12px;padding:13px 16px;border:0;border-top:1px solid var(--line);background:none;text-align:left;color:var(--ink)}
+.li:first-child{border-top:0}
+.li > div{flex:1;min-width:0}
+.li .a{font-weight:600}
+.li .b{font-size:13px;color:var(--ink-2)}
+.li svg{width:18px;height:18px;color:var(--ink-3);flex:none}
+
+/* abas */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
+.tabs-in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);align-items:end}
+.tab{border:0;background:none;display:grid;justify-items:center;gap:2px;font-size:11.5px;font-weight:600;color:var(--ink-3);padding:6px 0}
+.tab svg{width:24px;height:24px}
+.tab[aria-current="page"]{color:var(--pen)}
+.tab.pen{color:var(--on-pen)}
+.tab.pen .disc-ic{width:50px;height:50px;border-radius:16px;background:var(--pen);display:grid;place-items:center;margin-top:-22px;box-shadow:0 6px 16px -6px var(--pen)}
+.tab.pen span{color:var(--ink-2)}
+
+/* folhas */
+.scrim{position:fixed;inset:0;z-index:50;background:rgba(10,14,28,.45);display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);width:100%;max-width:560px;max-height:92%;border-radius:var(--r-lg) var(--r-lg) 0 0;display:flex;flex-direction:column;animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}
+.sheet-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px 10px;border-bottom:1px solid var(--line)}
+.sheet-h h2{font-family:var(--f-display);font-size:22px;font-weight:600;margin:0}
+.sheet-b{overflow-y:auto;padding:14px 16px calc(20px + env(safe-area-inset-bottom,0px));display:grid;gap:14px;-webkit-overflow-scrolling:touch}
+.x{border:0;background:var(--sunk);width:34px;height:34px;border-radius:50%;display:grid;place-items:center}
+.x svg{width:16px;height:16px}
+.field{display:grid;gap:6px}
+.field > span{font-size:13.5px;font-weight:600;color:var(--ink-2)}
+.input,.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);background:var(--paper);border-radius:var(--r-sm);padding:10px 12px;font-size:16px;min-height:44px}
+.field textarea{min-height:140px;resize:vertical;line-height:1.4}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:7px 13px;font-size:14px;font-weight:600;min-height:38px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.picks{display:grid;gap:2px;max-height:260px;overflow-y:auto;border:1px solid var(--line);border-radius:var(--r-sm);padding:4px;background:var(--paper)}
+.pick{display:flex;gap:10px;align-items:flex-start;padding:8px;border-radius:6px;font-size:14.5px;line-height:1.35}
+.pick input{margin-top:3px;width:18px;height:18px;flex:none;accent-color:var(--pen)}
+.pick .cod{color:var(--ink-3);font-size:12.5px;min-width:2.2em}
+.pick span:last-child{min-width:0;overflow-wrap:anywhere}
+.switch{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:15px}
+.switch input{width:22px;height:22px;accent-color:var(--pen);flex:none}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.days label{display:grid;gap:4px;font-size:12px;color:var(--ink-2);text-align:center}
+.days input{width:100%;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:8px 2px;text-align:center;font-size:15px;min-height:42px}
+.note{font-size:13px;color:var(--ink-2);background:var(--paper);border-radius:var(--r-sm);padding:10px 12px}
+.imp-disc{border:1px solid var(--line);border-radius:var(--r-md);padding:10px 12px;display:grid;gap:8px}
+.imp-disc .row{display:flex;gap:8px;align-items:center}
+.imp-disc .row input[type=text]{flex:1;min-width:0}
+.imp-disc .row input[type=number]{width:62px}
+.imp-disc .row input[type=checkbox]{width:20px;height:20px;accent-color:var(--pen);flex:none}
+.imp-tops{display:grid;gap:4px;font-size:13.5px;max-height:220px;overflow-y:auto}
+.imp-tops div{display:flex;gap:8px;align-items:flex-start}
+.imp-tops div span:nth-child(2){flex:1;min-width:0;overflow-wrap:anywhere}
+.imp-tops button{border:0;background:none;color:var(--ink-3);padding:0 4px;font-size:16px;line-height:1}
+.tag{display:inline-block;font-size:11.5px;font-weight:700;border-radius:99px;padding:2px 8px;background:var(--pen-soft);color:var(--pen)}
+.toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:999px;font-size:14px;font-weight:600;max-width:90vw}
+.sep{height:1px;background:var(--line);border:0;margin:4px 0}
+</style>
+</head>
+<body>
+
+
+<div class="app" id="app"></div>
+<nav class="tabs" aria-label="Seções">
+  <div class="tabs-in" id="tabs"></div>
+</nav>
+<div id="layer"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- ícones ---------- */
+const I = {
+  hoje:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8.5 14.5l2 2 4-4"/></svg>',
+  edital:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h9l3.5 3.5V20a.5.5 0 0 1-.5.5H6a.5.5 0 0 1-.5-.5V4A.5.5 0 0 1 6 3.5z"/><path d="M9 10h6M9 13.5h6M9 17h3.5"/></svg>',
+  pen:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1-4.5L15.5 5a2.1 2.1 0 0 1 3 3L8 18.5 4 20z"/><path d="M13.5 7l3 3"/></svg>',
+  chart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16"/><rect x="5.5" y="11" width="3" height="6.5" rx="1"/><rect x="10.5" y="6" width="3" height="11.5" rx="1"/><rect x="15.5" y="13.5" width="3" height="4" rx="1"/></svg>',
+  mais:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 7h14M5 12h14M5 17h9"/></svg>',
+  x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  out:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
+  go:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>',
+  play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>'
+};
+
+/* ---------- utilidades ---------- */
+const $ = s => document.querySelector(s);
+const uid = () => Math.random().toString(36).slice(2,9) + Date.now().toString(36).slice(-3);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2,'0');
+const ymd = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parseD = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const today = () => ymd(new Date());
+const addDays = (s,n) => { const d = parseD(s); d.setDate(d.getDate()+n); return ymd(d); };
+const diffDays = (a,b) => Math.round((parseD(b) - parseD(a)) / 86400000); // b - a
+const MESES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+const MESES_L = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+const DIAS_L = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+const DIAS_S = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+const fmtShort = s => { const d = parseD(s); return d.getDate()+'/'+MESES[d.getMonth()]; };
+const fmtLong = s => { const d = parseD(s); return d.getDate()+' de '+MESES_L[d.getMonth()]+' de '+d.getFullYear(); };
+const fmtMin = m => { m = Math.round(m); const h = Math.floor(m/60), r = m%60; return h ? (r ? h+'h'+pad(r) : h+'h') : r+' min'; };
+const pct = (a,q) => q ? Math.round(a/q*100) : null;
+const norm = s => String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+const SMALL = new Set(['de','da','do','das','dos','e','a','o','as','os','em','na','no','nas','nos','ao','aos','à','às','para','por','com','sobre']);
+function titleCase(s){
+  const letters = s.replace(/[^A-Za-zÀ-ÿ]/g,'');
+  const up = letters.replace(/[^A-ZÀ-Þ]/g,'').length;
+  if (!letters || up/letters.length < .8) return s.trim();
+  return s.toLowerCase().split(/\s+/).map((w,i)=>{
+    if (/^(i|ii|iii|iv|v|vi|vii|viii|ix|x)$/.test(w)) return w.toUpperCase();
+    if (i>0 && SMALL.has(w)) return w;
+    return w.charAt(0).toUpperCase()+w.slice(1);
+  }).join(' ').trim();
+}
+
+/* ---------- armazenamento ---------- */
+const KEY = 'marcatexto.v1';
+const INTERVALOS = [1,7,15,30,60,90];
+const LINKS_PADRAO = [
+  {id:'qc', nome:'Qconcursos', url:'https://www.qconcursos.com'},
+  {id:'pge', nome:'Aprovação PGE', url:'https://app.aprovacaopge.com.br/home'},
+  {id:'gran', nome:'Gran Cursos', url:'https://www.grancursosonline.com.br/aluno/espaco/meus-cursos'}
+];
+function blank(){
+  return { v:1, concursos:[], disciplinas:[], topicos:[], sessoes:[], simulados:[],
+    cfg:{ minDia:[120,180,180,180,180,180,240], bloco:50, maxDisc:3, naoRepetir:true, agrupar:true },
+    links: LINKS_PADRAO.map(l=>({...l})), timer:null, plano:null, intro:false };
+}
+let mem = null, demo = false, S;
+function load(){
+  try { const raw = localStorage.getItem(KEY); if (raw) { const s = JSON.parse(raw); return Object.assign(blank(), s, {cfg:Object.assign(blank().cfg, s.cfg||{})}); } } catch(e){}
+  return mem ? mem : blank();
+}
+function save(){
+  if (demo) return;
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){ mem = S; }
+}
+try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch(e){}
+
+/* ---------- consultas ---------- */
+const D = id => S.disciplinas.find(d=>d.id===id);
+const T = id => S.topicos.find(t=>t.id===id);
+const C = id => S.concursos.find(c=>c.id===id);
+const ativos = () => S.concursos.filter(c=>c.ativo!==false);
+function topsAtivos(){ const set = new Set(); ativos().forEach(c=>c.tops.forEach(id=>set.add(id))); return set; }
+function topsDoConcurso(cid){ return cid ? new Set(C(cid)?.tops||[]) : topsAtivos(); }
+function estado(t, hoje=today()){
+  const st = t.st;
+  if (!st.estudado) return 'none';
+  if (st.prox && st.prox < hoje) return 'late';
+  if (st.nivel >= 3) return 'ok';
+  return 'seen';
+}
+const HL = {seen:'hl hl-y', ok:'hl hl-g', late:'hl hl-p', none:''};
+function accDisc(did, dias){
+  const lim = dias ? addDays(today(), -dias) : '0000';
+  let q=0,a=0; S.sessoes.forEach(s=>{ if (s.d===did && s.data>=lim && s.q){ q+=s.q; a+=s.a||0; }});
+  return {q,a,p:pct(a,q)};
+}
+function ultimoEstudo(did){
+  let u=null; S.sessoes.forEach(s=>{ if (s.d===did && (!u || s.data>u)) u=s.data; }); return u;
+}
+function grupo(t){ return t.cod ? t.cod.split('.')[0] : t.id; }
+
+/* ---------- revisão espaçada ---------- */
+function marcarEstudado(t, data){
+  t.st.estudado = data; t.st.nivel = 0; t.st.rev = t.st.rev||0; t.st.ult = data;
+  t.st.prox = addDays(data, INTERVALOS[0]);
+}
+function revisar(t, nota, data){
+  const st = t.st;
+  if (!st.estudado) { marcarEstudado(t, data); return; }
+  if (nota==='bom') st.nivel = Math.min((st.nivel||0)+1, INTERVALOS.length-1);
+  if (nota==='esqueci') { st.nivel = 0; st.dif = true; }
+  let dias = INTERVALOS[st.nivel||0];
+  if (nota==='esforco') dias = Math.max(2, Math.round(dias*0.6));
+  st.prox = addDays(data, dias); st.rev = (st.rev||0)+1; st.ult = data;
+}
+
+/* ---------- plano do dia ---------- */
+function gerarPlano(){
+  const hoje = today(), ontem = addDays(hoje,-1);
+  const orc = S.cfg.minDia[parseD(hoje).getDay()] || 0;
+  const ativosT = topsAtivos();
+  const revs = S.topicos.filter(t=>ativosT.has(t.id) && t.st.estudado && t.st.prox && t.st.prox<=hoje);
+  const minRev = Math.min(revs.length*8, Math.round(orc*0.35));
+  let resta = orc - minRev;
+  const ontemD = new Set(S.sessoes.filter(s=>s.data===ontem && s.tipo!=='revisao').map(s=>s.d));
+  const scores = {};
+  ativos().forEach(c=>{
+    const somaPeso = c.disc.reduce((a,x)=>a+(+x.peso||1),0) || 1;
+    const dias = c.prova ? Math.max(diffDays(hoje, c.prova), 1) : 240;
+    const urg = 1 + 90/Math.max(dias, 10);
+    c.disc.forEach(x=>{
+      const tops = c.tops.map(T).filter(t=>t && t.d===x.d);
+      if (!tops.length) return;
+      const feitos = tops.filter(t=>t.st.estudado).length;
+      const cob = feitos/tops.length;
+      const pN = (+x.peso||1)/somaPeso;
+      const sc = scores[x.d] || (scores[x.d] = {d:x.d, s:0, cob:[], prova:[], pend:0});
+      sc.s += pN * (cob<1 ? (1-cob) : 0.15) * urg;
+      sc.cob.push({c:c.nome, v:cob}); if (c.prova) sc.prova.push({c:c.nome, dias});
+      sc.pend += tops.length - feitos;
+    });
+  });
+  const lista = Object.values(scores).map(sc=>{
+    const ac = accDisc(sc.d, 45); const u = ultimoEstudo(sc.d);
+    const parado = u ? diffDays(u, hoje) : 30;
+    let s = sc.s;
+    if (ac.q>=10 && ac.p<75) s *= 1 + (75-ac.p)/60;
+    s *= 1 + Math.min(parado,14)/28;
+    const motivos = [];
+    const pr = sc.prova.sort((a,b)=>a.dias-b.dias)[0];
+    const cobMin = Math.min(...sc.cob.map(x=>x.v));
+    if (pr) motivos.push('Prova '+pr.c+' em '+pr.dias+' dias, '+Math.round(cobMin*100)+'% do conteúdo visto');
+    else motivos.push(Math.round(cobMin*100)+'% do conteúdo visto');
+    if (ac.q>=10 && ac.p<75) motivos.push('acerto de '+ac.p+'% nas questões');
+    if (u && parado>=7) motivos.push('parada há '+parado+' dias');
+    if (!u) motivos.push('ainda não iniciada');
+    return {d:sc.d, s, motivos, pend:sc.pend, ontem:ontemD.has(sc.d)};
+  }).sort((a,b)=>b.s-a.s);
+  const elegiveis = lista.filter(x=>!(S.cfg.naoRepetir && x.ontem));
+  const pulou = lista.filter(x=>S.cfg.naoRepetir && x.ontem).map(x=>x.d);
+  const nBlocos = resta>=20 ? Math.max(1, Math.round(resta / S.cfg.bloco)) : 0;
+  const escolhidas = elegiveis.slice(0, Math.min(S.cfg.maxDisc, nBlocos));
+  const blocos = escolhidas.map(x=>({d:x.d, min:0, tops:[], motivos:x.motivos}));
+  for (let i=0;i<nBlocos && blocos.length;i++) blocos[i%blocos.length].min += S.cfg.bloco;
+  if (blocos.length){ const tot = blocos.reduce((a,b)=>a+b.min,0); if (tot>resta) blocos[blocos.length-1].min -= (tot-resta); }
+  blocos.forEach(b=>{
+    const pend = S.topicos.filter(t=>t.d===b.d && ativosT.has(t.id) && !t.st.estudado).sort((a,c)=>a.ord-c.ord);
+    const cap = Math.max(1, Math.round(b.min/25));
+    if (!pend.length){
+      b.tipo = 'questoes';
+      b.tops = S.topicos.filter(t=>t.d===b.d && ativosT.has(t.id) && t.st.dif).slice(0,cap).map(t=>t.id);
+      b.motivos = ['Conteúdo todo visto; dia de questões para consolidar'].concat(b.motivos.slice(1));
+      return;
+    }
+    b.tipo = 'teoria';
+    if (S.cfg.agrupar){
+      const g = grupo(pend[0]);
+      const mesmo = pend.filter(t=>grupo(t)===g);
+      b.tops = (mesmo.length <= cap*2 ? mesmo : mesmo.slice(0, cap*2)).map(t=>t.id);
+      if (b.tops.length < cap) pend.filter(t=>!b.tops.includes(t.id)).slice(0, cap-b.tops.length).forEach(t=>b.tops.push(t.id));
+    } else b.tops = pend.slice(0,cap).map(t=>t.id);
+  });
+  return {data:hoje, orc, minRev, blocos, pulou};
+}
+function plano(forcar){
+  if (forcar || !S.plano || S.plano.data!==today() || S.plano.blocos.some(b=>!D(b.d))) { S.plano = gerarPlano(); save(); }
+  return S.plano;
+}
+
+/* ---------- roteamento ---------- */
+let rota = 'hoje', filtroEdital = '', filtroDes = '', abertas = new Set();
+const TABS = [
+  {id:'hoje', nm:'Hoje', ic:I.hoje},
+  {id:'edital', nm:'Edital', ic:I.edital},
+  {id:'registrar', nm:'Registrar', ic:I.pen, pen:true},
+  {id:'desempenho', nm:'Desempenho', ic:I.chart},
+  {id:'mais', nm:'Mais', ic:I.mais}
+];
+function renderTabs(){
+  $('#tabs').innerHTML = TABS.map(t=> t.pen
+    ? `<button class="tab pen" data-act="registrar"><div class="disc-ic">${t.ic}</div><span>${t.nm}</span></button>`
+    : `<button class="tab" data-act="ir" data-v="${t.id}" ${rota===t.id?'aria-current="page"':''}>${t.ic}<span>${t.nm}</span></button>`).join('');
+}
+function render(){
+  renderTabs();
+  const v = {hoje:vHoje, edital:vEdital, desempenho:vDesempenho, mais:vMais}[rota]();
+  $('#app').innerHTML = (demo ? `<div class="demo-bar"><span>Você está vendo dados de exemplo.</span><button data-act="sairDemo">Sair do exemplo</button></div>` : '') + v;
+  tickTimer();
+}
+
+/* ---------- tela Hoje ---------- */
+function timerHTML(){
+  if (!S.timer) return '';
+  const d = D(S.timer.d);
+  return `<div class="timer" role="status"><span class="clock" id="clock">00:00</span><span class="what">${esc(d?d.nome:'Estudo livre')}</span><button data-act="pararTimer">Encerrar</button></div>`;
+}
+function vHoje(){
+  const hoje = today(), dt = parseD(hoje);
+  let h = timerHTML();
+  h += `<header class="top"><div><h1>${DIAS_L[dt.getDay()]}, ${dt.getDate()} de ${MESES_L[dt.getMonth()]}</h1>`;
+  const cds = ativos().filter(c=>c.prova && c.prova>=hoje).sort((a,b)=>a.prova<b.prova?-1:1);
+  h += `</div></header>`;
+  if (cds.length) h += `<div class="countdowns">${cds.map(c=>`<div class="cd"><b>${diffDays(hoje,c.prova)}</b><span>dias para ${esc(c.nome)}</span></div>`).join('')}</div>`;
+
+  if (!S.concursos.length){
+    h += `<div class="section"><div class="empty"><h3>Comece pelo seu concurso</h3><p>Cadastre o concurso, cole o conteúdo programático do edital e o app passa a montar o seu dia: o que estudar, o que revisar e quanto tempo dar a cada matéria.</p><div class="block-actions"><button class="btn primary" data-act="novoConcurso">Cadastrar concurso</button>${demo?'':'<button class="btn ghost" data-act="entrarDemo">Ver com exemplo</button>'}</div></div></div>`;
+    return h + platRow();
+  }
+  if (!topsAtivos().size){
+    h += `<div class="section"><div class="empty"><h3>Falta o edital</h3><p>Cole o conteúdo programático ou abra o PDF do edital. Você revisa as disciplinas e os tópicos antes de salvar.</p><div class="block-actions"><button class="btn primary" data-act="importar">Importar edital</button></div></div></div>`;
+    return h + platRow();
+  }
+  const p = plano();
+  const ativosT = topsAtivos();
+  const revs = S.topicos.filter(t=>ativosT.has(t.id) && t.st.estudado && t.st.prox && t.st.prox<=hoje).sort((a,b)=>a.st.prox<b.st.prox?-1:1);
+  const feitoHoje = new Set(S.sessoes.filter(s=>s.data===hoje && s.tipo!=='revisao').map(s=>s.d));
+  const minHoje = S.sessoes.filter(s=>s.data===hoje).reduce((a,s)=>a+(+s.min||0),0);
+
+  h += `<section class="section"><div class="sec-head"><h2>Plano do dia</h2><span class="meta">${p.orc?fmtMin(minHoje)+' de '+fmtMin(p.orc):'Dia de folga'}</span></div>`;
+  if (!p.blocos.length){
+    h += `<div class="empty"><p>${p.orc ? 'Seu tempo de hoje fica para as revisões.' : 'Hoje está marcado como folga na sua rotina. As revisões vencidas continuam abaixo.'}</p></div>`;
+  } else {
+    h += `<div class="blocks">` + p.blocos.map((b,i)=>{
+      const d = D(b.d); if (!d) return '';
+      const done = feitoHoje.has(b.d);
+      const tops = b.tops.map(T).filter(Boolean);
+      return `<article class="block ${done?'done':''}">
+        <div class="block-top"><h3><span class="${done?'hl hl-g':'hl hl-y'}">${esc(d.nome)}</span></h3><span class="mins">${fmtMin(b.min)}</span></div>
+        <p class="why">${esc(b.motivos.slice(0,2).join('; '))}.</p>
+        ${tops.length ? `<ul class="tlist">${tops.map(t=>`<li><span class="cod">${esc(t.cod||'')}</span><span class="tx ${t.st.estudado?'muted':''}">${esc(t.t)}</span></li>`).join('')}</ul>` : (b.tipo==='questoes'?'<p class="why">Resolva questões da disciplina toda.</p>':'')}
+        <div class="block-actions">${done ? `<span class="small muted">Registrado hoje.</span><button class="linkbtn" data-act="registrarBloco" data-i="${i}">Registrar mais</button>` :
+          `<button class="btn primary" data-act="iniciarTimer" data-i="${i}">${I.play}Começar</button><button class="btn" data-act="registrarBloco" data-i="${i}">Registrar</button>`}</div>
+      </article>`;
+    }).join('') + `</div>`;
+  }
+  if (p.pulou.length) h += `<p class="tiny" style="margin-top:10px">Fica para amanhã por ter sido estudada ontem: ${p.pulou.map(id=>esc(D(id)?.nome||'')).join(', ')}.</p>`;
+  h += `<div style="margin-top:6px"><button class="linkbtn" data-act="refazerPlano">Refazer o plano com os dados atuais</button></div></section>`;
+
+  h += `<section class="section"><div class="sec-head"><h2>Revisões</h2><span class="meta">${revs.length ? revs.length+' para hoje' : 'em dia'}</span></div>`;
+  if (!revs.length) h += `<div class="empty"><p>Nenhuma revisão vencida. Os tópicos estudados voltam aqui em 1, 7, 15, 30, 60 e 90 dias.</p></div>`;
+  else h += `<div class="revs">${revs.slice(0,30).map(t=>{
+      const atraso = diffDays(t.st.prox, hoje);
+      return `<div class="rev"><div class="disc">${esc(D(t.d)?.nome||'')}${atraso>0?` <span class="late">atrasada ${atraso} ${atraso>1?'dias':'dia'}</span>`:''}</div>
+      <div class="t">${t.cod?`<span class="tiny">${esc(t.cod)}</span> `:''}${esc(t.t)}</div>
+      <div class="grades"><button class="grade" data-act="rev" data-id="${t.id}" data-n="bom">Lembrei bem</button><button class="grade" data-act="rev" data-id="${t.id}" data-n="esforco">Com esforço</button><button class="grade" data-act="rev" data-id="${t.id}" data-n="esqueci">Esqueci</button></div></div>`;
+    }).join('')}</div>${revs.length>30?`<p class="tiny">Mostrando 30 de ${revs.length}.</p>`:''}`;
+  h += `</section>`;
+  return h + platRow();
+}
+function platRow(){
+  if (!S.links.length) return '';
+  return `<section class="section"><div class="sec-head"><h2>Plataformas</h2><span class="meta">abre no navegador</span></div><div class="plat-row">${S.links.map(l=>`<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.nome)}</a>`).join('')}</div></section>`;
+}
+
+/* ---------- tela Edital ---------- */
+function vEdital(){
+  let h = `<header class="top"><div><h1>Edital</h1><p class="sub">Toque num tópico para marcar, revisar ou editar.</p></div><button class="btn" data-act="importar">Importar</button></header>`;
+  if (!S.concursos.length) return h + `<div class="section"><div class="empty"><h3>Nenhum concurso ainda</h3><p>Cadastre um concurso para importar o edital.</p><div class="block-actions"><button class="btn primary" data-act="novoConcurso">Cadastrar concurso</button></div></div></div>`;
+  if (filtroEdital && !C(filtroEdital)) filtroEdital = '';
+  h += `<div class="chips" style="margin-top:12px"><button class="chip" data-act="fEdital" data-v="" aria-pressed="${!filtroEdital}">Todos ativos</button>${S.concursos.map(c=>`<button class="chip" data-act="fEdital" data-v="${c.id}" aria-pressed="${filtroEdital===c.id}">${esc(c.nome)}</button>`).join('')}</div>`;
+  h += `<div class="legend"><span><span class="hl hl-y">estudado</span></span><span><span class="hl hl-g">consolidado</span></span><span><span class="hl hl-p">revisão atrasada</span></span><span>sem marca: a estudar</span></div>`;
+  const set = topsDoConcurso(filtroEdital);
+  const hoje = today();
+  const porD = {};
+  S.topicos.forEach(t=>{ if (set.has(t.id)) (porD[t.d] = porD[t.d]||[]).push(t); });
+  let ordemD = S.disciplinas.filter(d=>porD[d.id]);
+  if (filtroEdital){ const c = C(filtroEdital); const ids = c.disc.map(x=>x.d); ordemD = ids.map(D).filter(d=>d && porD[d.id]); }
+  if (!ordemD.length) return h + `<div class="section"><div class="empty"><p>${filtroEdital?'Este concurso ainda não tem edital importado.':'Nenhum tópico nos concursos ativos.'}</p><div class="block-actions"><button class="btn primary" data-act="importar">Importar edital</button></div></div></div>`;
+  h += ordemD.map(d=>{
+    const tops = porD[d.id].sort((a,b)=>a.ord-b.ord);
+    const n = tops.length, g = tops.filter(t=>estado(t,hoje)==='ok').length, y = tops.filter(t=>estado(t,hoje)==='seen').length, p = tops.filter(t=>estado(t,hoje)==='late').length;
+    const ac = accDisc(d.id);
+    const aberta = abertas.has(d.id);
+    const cd = filtroEdital ? C(filtroEdital).disc.find(x=>x.d===d.id) : null;
+    return `<div class="disc"><button class="disc-h" data-act="toggleD" data-id="${d.id}" aria-expanded="${aberta}">
+      <div class="row"><span class="nm">${esc(d.nome)}</span><span class="ct">${g+y+p} de ${n}${ac.q?` · ${ac.p}% acerto`:''}</span></div>
+      <div class="bar"><i class="g" style="width:${g/n*100}%"></i><i class="y" style="width:${y/n*100}%"></i><i class="p" style="width:${p/n*100}%"></i></div></button>
+      ${aberta ? `<div class="disc-body">
+        ${cd ? `<div class="disc-tools"><label for="peso-${d.id}">Peso no ${esc(C(filtroEdital).nome)}</label><input class="input" id="peso-${d.id}" type="number" min="0" step="1" value="${esc(cd.peso)}" data-act-change="peso" data-id="${d.id}"></div>` : ''}
+        ${tops.map(t=>{ const e = estado(t,hoje); const when = t.st.prox ? (t.st.prox<hoje ? `<span class="when late">rev. ${fmtShort(t.st.prox)}</span>` : `<span class="when">rev. ${fmtShort(t.st.prox)}</span>`) : '';
+          return `<button class="trow" data-act="topico" data-id="${t.id}"><span class="cod">${esc(t.cod||'')}</span><span class="tx"><span class="${HL[e]}">${esc(t.t)}</span></span>${when}</button>`; }).join('')}
+        <form class="addt" data-form="addTop" data-id="${d.id}"><input class="input" name="t" placeholder="Novo tópico" aria-label="Novo tópico em ${esc(d.nome)}"><button class="btn">Incluir</button></form>
+        <div class="disc-tools"><button class="linkbtn" data-act="renomearD" data-id="${d.id}">Renomear disciplina</button></div>
+      </div>` : ''}</div>`;
+  }).join('');
+  return h;
+}
+
+/* ---------- tela Desempenho ---------- */
+function vDesempenho(){
+  let h = `<header class="top"><div><h1>Desempenho</h1><p class="sub">Calculado só com o que você registra.</p></div></header>`;
+  if (!S.sessoes.length && !S.simulados.length) return h + `<div class="section"><div class="empty"><h3>Sem registros ainda</h3><p>Registre um bloco de estudo, com minutos e questões, e os gráficos aparecem aqui.</p><div class="block-actions"><button class="btn primary" data-act="registrar">Registrar estudo</button></div></div></div>`;
+  if (filtroDes && !C(filtroDes)) filtroDes='';
+  if (S.concursos.length>1) h += `<div class="chips" style="margin-top:12px"><button class="chip" data-act="fDes" data-v="" aria-pressed="${!filtroDes}">Todos</button>${S.concursos.map(c=>`<button class="chip" data-act="fDes" data-v="${c.id}" aria-pressed="${filtroDes===c.id}">${esc(c.nome)}</button>`).join('')}</div>`;
+  const hoje = today();
+  const discF = filtroDes ? new Set(C(filtroDes).disc.map(x=>x.d)) : null;
+  const ses = S.sessoes.filter(s=>!discF || discF.has(s.d));
+  // semana (segunda a domingo)
+  const dw = (parseD(hoje).getDay()+6)%7, ini = addDays(hoje,-dw);
+  const sem = ses.filter(s=>s.data>=ini && s.data<=hoje);
+  const minSem = sem.reduce((a,s)=>a+(+s.min||0),0);
+  const metaSem = S.cfg.minDia.reduce((a,b)=>a+b,0);
+  const qSem = sem.reduce((a,s)=>a+(+s.q||0),0);
+  const l30 = addDays(hoje,-30);
+  let q30=0,a30=0; ses.forEach(s=>{ if (s.data>=l30 && s.q){ q30+=+s.q; a30+=+s.a||0; }});
+  const ativosT = topsDoConcurso(filtroDes);
+  const est = S.topicos.filter(t=>ativosT.has(t.id) && t.st.estudado);
+  const atras = est.filter(t=>t.st.prox && t.st.prox<hoje).length;
+  const emDia = est.length ? Math.round((est.length-atras)/est.length*100) : null;
+  const cls = (v,b,g)=> v==null?'':(v>=g?'status-good':v>=b?'status-warn':'status-bad');
+  h += `<section class="section"><div class="kpis">
+    <div class="kpi"><div class="v">${fmtMin(minSem)}</div><div class="l">nesta semana</div><div class="d ${cls(minSem/(metaSem||1)*100,60,90)}">${metaSem?Math.round(minSem/metaSem*100)+'% da meta de '+fmtMin(metaSem):'sem meta definida'}</div></div>
+    <div class="kpi"><div class="v">${qSem}</div><div class="l">questões na semana</div><div class="d muted">${q30} nos últimos 30 dias</div></div>
+    <div class="kpi"><div class="v ${cls(pct(a30,q30),60,75)}">${q30?pct(a30,q30)+'%':'–'}</div><div class="l">acerto em 30 dias</div><div class="d muted">${a30} de ${q30}</div></div>
+    <div class="kpi"><div class="v ${cls(emDia,70,90)}">${emDia==null?'–':emDia+'%'}</div><div class="l">revisões em dia</div><div class="d muted">${atras} atrasada${atras===1?'':'s'}</div></div>
+  </div></section>`;
+
+  // horas por dia, 14 dias
+  const dias = []; for (let i=13;i>=0;i--) dias.push(addDays(hoje,-i));
+  const porDia = dias.map(d=>({d, m:ses.filter(s=>s.data===d).reduce((a,s)=>a+(+s.min||0),0), meta:S.cfg.minDia[parseD(d).getDay()]}));
+  h += `<section class="section"><div class="sec-head"><h2>Tempo líquido por dia</h2><span class="meta">últimos 14 dias</span></div><div class="panel">${barras(porDia)}</div></section>`;
+
+  // cobertura e projeção
+  const cs = filtroDes ? [C(filtroDes)] : ativos();
+  if (cs.length){
+    h += `<section class="section"><div class="sec-head"><h2>Cobertura do edital</h2><span class="meta">ritmo de 4 semanas</span></div><div class="panel">`;
+    h += cs.map(c=>{
+      const tops = c.tops.map(T).filter(Boolean); if (!tops.length) return `<div class="proj"><span class="nm">${esc(c.nome)}</span><span class="small muted">Edital não importado.</span></div>`;
+      const feitos = tops.filter(t=>t.st.estudado).length, resto = tops.length-feitos;
+      const l28 = addDays(hoje,-28);
+      const ritmo = tops.filter(t=>t.st.estudado && t.st.estudado>=l28).length/4;
+      let msg='', k='';
+      if (!resto){ msg='Todo o conteúdo visto. Foque em questões e revisões.'; k='status-good'; }
+      else if (c.prova && c.prova>hoje){
+        const alvo = addDays(c.prova,-14), sem = Math.max(diffDays(hoje,alvo)/7, 0.5);
+        const prec = resto/sem;
+        if (ritmo>=prec){ msg = `No ritmo atual, ${ritmo.toFixed(1).replace('.',',')} tópicos por semana, você termina antes da reta final.`; k='status-good'; }
+        else { msg = `Para terminar até ${fmtShort(alvo)}, duas semanas antes da prova, são precisos ${Math.ceil(prec)} tópicos por semana. Seu ritmo é ${ritmo.toFixed(1).replace('.',',')}.`; k = ritmo>=prec*0.7?'status-warn':'status-bad'; }
+      } else if (ritmo>0){ msg = `No ritmo atual o conteúdo termina por volta de ${fmtShort(addDays(hoje, Math.ceil(resto/ritmo*7)))}.`; }
+      else msg = 'Nenhum tópico novo nas últimas 4 semanas.';
+      return `<div class="proj"><div style="display:flex;justify-content:space-between;gap:10px"><span class="nm">${esc(c.nome)}</span><span class="small muted">${feitos} de ${tops.length}</span></div>
+        <div class="bar"><i class="g" style="width:${feitos/tops.length*100}%"></i></div><span class="small ${k}">${msg}</span></div>`;
+    }).join('');
+    h += `</div></section>`;
+  }
+
+  // acerto por disciplina
+  const accs = S.disciplinas.filter(d=>!discF || discF.has(d.id)).map(d=>({d, ...accDisc(d.id, 90)})).filter(x=>x.q>0).sort((a,b)=>a.p-b.p);
+  h += `<section class="section"><div class="sec-head"><h2>Acerto por disciplina</h2><span class="meta">90 dias, pior primeiro</span></div><div class="panel">`;
+  h += accs.length ? accs.map(x=>{ const col = x.p>=75?'var(--good)':x.p>=60?'var(--warn)':'var(--bad)';
+      return `<div class="accrow"><span class="nm">${esc(x.d.nome)}</span><span class="pc" style="color:${col}">${x.p}%</span><div class="track"><i style="width:${x.p}%;background:${col}"></i></div><span class="n">${x.a} de ${x.q} questões</span></div>`; }).join('')
+    : `<p class="small muted" style="margin:0">Registre questões feitas e acertos para ver esta lista.</p>`;
+  h += `</div></section>`;
+
+  // constância
+  h += `<section class="section"><div class="sec-head"><h2>Constância</h2><span class="meta">16 semanas</span></div><div class="panel">${calor(ses)}</div></section>`;
+
+  // simulados
+  const sims = S.simulados.filter(s=>!filtroDes || s.c===filtroDes).sort((a,b)=>a.data<b.data?-1:1);
+  h += `<section class="section"><div class="sec-head"><h2>Simulados</h2><button class="linkbtn" data-act="novoSimulado">Registrar simulado</button></div><div class="panel">${sims.length?linhaSim(sims):'<p class="small muted" style="margin:0">Nenhum simulado registrado.</p>'}</div></section>`;
+  return h;
+}
+function barras(dados){
+  const W=340,H=150,pl=28,pb=20,pt=10, iw=W-pl-8, ih=H-pb-pt;
+  const max = Math.max(60, ...dados.map(d=>Math.max(d.m,d.meta)));
+  const step = max>360?120:60, top = Math.ceil(max/step)*step;
+  const y = v => pt + ih - v/top*ih, bw = iw/dados.length;
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Minutos estudados por dia">`;
+  for (let v=0; v<=top; v+=step){ s += `<line x1="${pl}" x2="${W-8}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${pl-5}" y="${y(v)+3.5}" text-anchor="end">${v/60}h</text>`; }
+  dados.forEach((d,i)=>{
+    const x = pl + i*bw + bw*.18, w = bw*.64, hoje = i===dados.length-1;
+    if (d.m) s += `<rect x="${x}" y="${y(d.m)}" width="${w}" height="${ih+pt-y(d.m)}" rx="3" fill="${hoje?'var(--pen)':'var(--heat-2)'}"/>`;
+    if (d.meta) s += `<line x1="${x-1}" x2="${x+w+1}" y1="${y(d.meta)}" y2="${y(d.meta)}" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="2 2"/>`;
+    if (i%2===dados.length%2 || hoje) s += `<text x="${x+w/2}" y="${H-5}" text-anchor="middle">${parseD(d.d).getDate()}</text>`;
+  });
+  return s + `</svg><p class="tiny" style="margin:6px 0 0">Tracejado: sua meta para aquele dia da semana.</p>`;
+}
+function calor(ses){
+  const hoje = today(), porDia = {};
+  ses.forEach(s=>{ porDia[s.data] = (porDia[s.data]||0) + (+s.min||0); });
+  const dw = (parseD(hoje).getDay()+6)%7, inicio = addDays(hoje, -dw - 15*7);
+  const cel = 17, gap = 3, pl = 26, pt = 16, W = pl + 16*(cel+gap), H = pt + 7*(cel+gap);
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Dias estudados nas últimas 16 semanas">`;
+  ['S','T','Q','Q','S','S','D'].forEach((l,i)=>{ if (i%2===0) s += `<text x="${pl-8}" y="${pt+i*(cel+gap)+12}" text-anchor="end">${l}</text>`; });
+  let mesAnt = -1;
+  for (let w=0; w<16; w++){
+    const d0 = addDays(inicio, w*7), m = parseD(d0).getMonth();
+    if (m!==mesAnt){ s += `<text x="${pl+w*(cel+gap)}" y="10">${MESES[m]}</text>`; mesAnt = m; }
+    for (let k=0; k<7; k++){
+      const d = addDays(d0,k); if (d>hoje) continue;
+      const m2 = porDia[d]||0, n = m2===0?0:m2<60?1:m2<120?2:m2<180?3:4;
+      s += `<rect x="${pl+w*(cel+gap)}" y="${pt+k*(cel+gap)}" width="${cel}" height="${cel}" rx="4" fill="var(--heat-${n})"><title>${fmtShort(d)}: ${fmtMin(m2)}</title></rect>`;
+    }
+  }
+  return s + `</svg><p class="tiny" style="margin:6px 0 0">Mais escuro, mais tempo: até 1h, 2h, 3h e acima.</p>`;
+}
+function linhaSim(sims){
+  const W=340,H=150,pl=30,pr=10,pt=12,pb=22, iw=W-pl-pr, ih=H-pt-pb;
+  const y = v => pt + ih - v/100*ih;
+  const x = i => pl + (sims.length===1 ? iw/2 : i/(sims.length-1)*iw);
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Aproveitamento nos simulados">`;
+  [0,50,100].forEach(v=> s += `<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${pl-5}" y="${y(v)+3.5}" text-anchor="end">${v}%</text>`);
+  const pts = sims.map((sm,i)=>({x:x(i), y:y(sm.nota/sm.max*100), c:sm.corte?y(sm.corte/sm.max*100):null, sm}));
+  const cortes = pts.filter(p=>p.c!=null);
+  if (cortes.length>1) s += `<polyline points="${cortes.map(p=>p.x+','+p.c).join(' ')}" fill="none" stroke="var(--ink-3)" stroke-dasharray="3 3"/>`;
+  if (pts.length>1) s += `<polygon points="${pl},${y(0)} ${pts.map(p=>p.x+','+p.y).join(' ')} ${pts[pts.length-1].x},${y(0)}" fill="var(--pen-soft)" opacity=".7"/><polyline points="${pts.map(p=>p.x+','+p.y).join(' ')}" fill="none" stroke="var(--pen)" stroke-width="2.2"/>`;
+  pts.forEach((p,i)=>{ s += `<circle cx="${p.x}" cy="${p.y}" r="${i===pts.length-1?4.5:3}" fill="var(--pen)"/>`; if (p.c!=null) s += `<line x1="${p.x-5}" x2="${p.x+5}" y1="${p.c}" y2="${p.c}" stroke="var(--ink)" stroke-width="1.5"/>`; });
+  const ult = sims[sims.length-1];
+  s += `<text x="${pl}" y="${H-5}">${fmtShort(sims[0].data)}</text>${sims.length>1?`<text x="${W-pr}" y="${H-5}" text-anchor="end">${fmtShort(ult.data)}</text>`:''}</svg>`;
+  return s + `<p class="small" style="margin:6px 0 0">Último: ${esc(C(ult.c)?.nome||'')}, ${ult.nota} de ${ult.max} (${Math.round(ult.nota/ult.max*100)}%)${ult.corte?`, corte ${ult.corte}`:''}.</p>`;
+}
+
+/* ---------- tela Mais ---------- */
+function vMais(){
+  let h = `<header class="top"><div><h1>Mais</h1></div></header>`;
+  h += `<section class="section"><div class="sec-head"><h2>Plataformas</h2><button class="linkbtn" data-act="links">Editar</button></div><div class="plats">${S.links.map(l=>`<a class="plat" href="${esc(l.url)}" target="_blank" rel="noopener"><span class="ini">${esc(l.nome.charAt(0))}</span><div><div class="nm">${esc(l.nome)}</div><div class="url">${esc(l.url.replace(/^https?:\/\//,''))}</div></div>${I.out}</a>`).join('')}</div><p class="tiny" style="margin-top:8px">Abrem no Safari com o seu login. Precisam de internet.</p></section>`;
+  h += `<section class="section"><div class="sec-head"><h2>Concursos</h2><button class="linkbtn" data-act="novoConcurso">Novo</button></div>`;
+  h += S.concursos.length ? `<div class="list">${S.concursos.map(c=>`<button class="li" data-act="editConcurso" data-id="${c.id}"><div><div class="a">${esc(c.nome)}${c.ativo===false?' <span class="tag">pausado</span>':''}</div><div class="b">${[c.cargo,c.banca,c.prova?'prova em '+fmtShort(c.prova):''].filter(Boolean).map(esc).join(', ')||'sem detalhes'} · ${c.tops.length} tópicos</div></div>${I.go}</button>`).join('')}</div>` : `<div class="empty"><p>Nenhum concurso cadastrado.</p></div>`;
+  h += `</section>`;
+  h += `<section class="section"><div class="sec-head"><h2>Ferramentas</h2></div><div class="list">
+    <button class="li" data-act="importar"><div><div class="a">Importar edital</div><div class="b">Colar texto, planilha ou abrir PDF</div></div>${I.go}</button>
+    <button class="li" data-act="rotina"><div><div class="a">Rotina e regras do plano</div><div class="b">${fmtMin(S.cfg.minDia.reduce((a,b)=>a+b,0))} por semana, blocos de ${S.cfg.bloco} min</div></div>${I.go}</button>
+    <button class="li" data-act="novoSimulado"><div><div class="a">Registrar simulado</div><div class="b">${S.simulados.length} registrado${S.simulados.length===1?'':'s'}</div></div>${I.go}</button>
+    <button class="li" data-act="historico"><div><div class="a">Histórico de estudo</div><div class="b">${S.sessoes.length} registro${S.sessoes.length===1?'':'s'}</div></div>${I.go}</button>
+    <button class="li" data-act="backup"><div><div class="a">Backup</div><div class="b">Exportar ou restaurar seus dados</div></div>${I.go}</button>
+  </div></section>`;
+  h += `<p class="tiny" style="margin-top:22px">Tudo fica guardado neste aparelho, sem conta e sem servidor. Faça backup de vez em quando.</p>`;
+  if (!demo && !S.concursos.length) h += `<p><button class="linkbtn" data-act="entrarDemo">Ver o app com dados de exemplo</button></p>`;
+  return h;
+}
+
+/* ---------- folhas ---------- */
+function sheet(titulo, corpo, onMount){
+  $('#layer').innerHTML = `<div class="scrim" data-act="fecharFora"><div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(titulo)}"><div class="sheet-h"><h2>${esc(titulo)}</h2><button class="x" data-act="fechar" aria-label="Fechar">${I.x}</button></div><div class="sheet-b">${corpo}</div></div></div>`;
+  document.body.style.overflow='hidden';
+  onMount && onMount($('#layer .sheet-b'));
+}
+function fechar(){ $('#layer').innerHTML=''; document.body.style.overflow=''; }
+let toastT;
+function toast(msg){ clearTimeout(toastT); let el = $('#toast'); if (!el){ el = document.createElement('div'); el.id='toast'; el.className='toast'; el.setAttribute('role','status'); document.body.appendChild(el);} el.textContent = msg; el.hidden=false; toastT = setTimeout(()=>el.hidden=true, 2600); }
+
+/* registrar */
+const TIPOS = [['teoria','Teoria'],['questoes','Questões'],['revisao','Revisão'],['leiseca','Lei seca']];
+function sRegistrar(pre={}){
+  if (!S.disciplinas.length){ sheet('Registrar estudo', `<p class="muted">Importe o edital primeiro para registrar estudos por disciplina e tópico.</p><button class="btn primary full" data-act="importar">Importar edital</button>`); return; }
+  const ativosT = topsAtivos();
+  const discs = S.disciplinas.slice().sort((a,b)=>a.nome.localeCompare(b.nome));
+  const dSel = pre.d || (S.plano?.blocos[0]?.d) || discs[0].id;
+  const corpo = `<form data-form="registrar" style="display:grid;gap:14px">
+    <div class="grid2"><label class="field"><span>Data</span><input type="date" name="data" value="${pre.data||today()}" max="${today()}"></label>
+    <label class="field"><span>Minutos líquidos</span><input type="number" name="min" inputmode="numeric" min="0" step="5" value="${pre.min||''}" placeholder="50"></label></div>
+    <label class="field"><span>Disciplina</span><select name="d" id="rg-d">${discs.map(d=>`<option value="${d.id}" ${d.id===dSel?'selected':''}>${esc(d.nome)}</option>`).join('')}</select></label>
+    <div class="field"><span>Tipo</span><div class="seg" id="rg-tipo">${TIPOS.map(([k,n])=>`<button type="button" data-v="${k}" aria-pressed="${(pre.tipo||'teoria')===k}">${n}</button>`).join('')}</div></div>
+    <div class="field"><span>Tópicos</span><div class="picks" id="rg-tops"></div></div>
+    <div class="grid3"><label class="field"><span>Questões</span><input type="number" name="q" inputmode="numeric" min="0" placeholder="0"></label>
+    <label class="field"><span>Acertos</span><input type="number" name="a" inputmode="numeric" min="0" placeholder="0"></label>
+    <label class="field"><span>Páginas</span><input type="number" name="pag" inputmode="numeric" min="0" placeholder="0"></label></div>
+    <label class="field"><span>Anotação</span><input name="obs" placeholder="Opcional"></label>
+    <p class="note">Teoria e lei seca marcam os tópicos como estudados e agendam a primeira revisão para amanhã. Revisão adianta o próximo intervalo. Acerto abaixo de 60% num único tópico antecipa a revisão dele.</p>
+    <button class="btn primary full" type="submit">Salvar registro</button></form>`;
+  sheet('Registrar estudo', corpo, b=>{
+    const form = b.querySelector('form'); let tipo = pre.tipo||'teoria';
+    const pintaTops = ()=>{
+      const did = form.elements.d.value;
+      const lista = S.topicos.filter(t=>t.d===did && ativosT.has(t.id)).sort((a,c)=>a.ord-c.ord);
+      const marcados = new Set(pre.d===did ? (pre.tops||[]) : []);
+      const ordenada = tipo==='revisao' ? lista.filter(t=>t.st.estudado).concat(lista.filter(t=>!t.st.estudado)) : lista.filter(t=>!t.st.estudado).concat(lista.filter(t=>t.st.estudado));
+      b.querySelector('#rg-tops').innerHTML = ordenada.length ? ordenada.map(t=>`<label class="pick"><input type="checkbox" name="tops" value="${t.id}" ${marcados.has(t.id)?'checked':''}><span class="cod">${esc(t.cod||'')}</span><span class="${HL[estado(t)]}">${esc(t.t)}</span></label>`).join('') : '<p class="small muted" style="padding:8px;margin:0">Disciplina sem tópicos nos concursos ativos.</p>';
+    };
+    form.elements.d.addEventListener('change', pintaTops);
+    b.querySelector('#rg-tipo').addEventListener('click', e=>{ const bt = e.target.closest('button'); if(!bt) return; tipo = bt.dataset.v; b.querySelectorAll('#rg-tipo button').forEach(x=>x.setAttribute('aria-pressed', x===bt)); pintaTops(); });
+    pintaTops();
+    form.addEventListener('submit', e=>{
+      e.preventDefault();
+      const f = new FormData(form);
+      const s = {id:uid(), data:f.get('data')||today(), d:f.get('d'), tipo, min:+f.get('min')||0, q:+f.get('q')||0, a:Math.min(+f.get('a')||0, +f.get('q')||0), pag:+f.get('pag')||0, obs:(f.get('obs')||'').trim(), tops:f.getAll('tops')};
+      if (!s.min && !s.q && !s.tops.length){ toast('Informe minutos, questões ou ao menos um tópico.'); return; }
+      S.sessoes.push(s);
+      const tops = s.tops.map(T).filter(Boolean);
+      tops.forEach(t=>{
+        if (tipo==='teoria' || tipo==='leiseca'){ if (!t.st.estudado) marcarEstudado(t, s.data); else revisar(t,'bom',s.data); }
+        if (tipo==='revisao') revisar(t,'bom',s.data);
+      });
+      if (s.q && tops.length===1){
+        const t = tops[0]; t.st.q=(t.st.q||0)+s.q; t.st.a=(t.st.a||0)+s.a;
+        if (s.a/s.q < .6 && t.st.estudado){ t.st.dif = true; const lim = addDays(s.data,2); if (!t.st.prox || t.st.prox>lim) t.st.prox = lim; }
+      }
+      if (pre.fromTimer) S.timer = null;
+      save(); fechar(); render(); toast('Registro salvo');
+    });
+  });
+}
+
+/* concurso */
+function sConcurso(id){
+  const c = id ? C(id) : {nome:'',cargo:'',banca:'',prova:'',ativo:true};
+  sheet(id?'Editar concurso':'Novo concurso', `<form data-form="concurso" style="display:grid;gap:14px">
+    <label class="field"><span>Nome</span><input name="nome" required value="${esc(c.nome)}" placeholder="Ex.: TCDF"></label>
+    <div class="grid2"><label class="field"><span>Cargo</span><input name="cargo" value="${esc(c.cargo)}"></label><label class="field"><span>Banca</span><input name="banca" value="${esc(c.banca)}"></label></div>
+    <label class="field"><span>Data da prova</span><input type="date" name="prova" value="${esc(c.prova)}"></label>
+    <label class="switch"><span>Ativo no plano do dia</span><input type="checkbox" name="ativo" ${c.ativo!==false?'checked':''}></label>
+    <button class="btn primary full" type="submit">${id?'Salvar':'Cadastrar e importar edital'}</button>
+    ${id?`<hr class="sep"><button type="button" class="btn danger full" data-act="apagarConcurso" data-id="${id}">Apagar concurso</button><p class="tiny">Apagar remove o concurso e os tópicos que só ele usa. O histórico de estudo continua.</p>`:''}
+  </form>`, b=>{
+    b.querySelector('form').addEventListener('submit', e=>{
+      e.preventDefault(); const f = new FormData(e.target);
+      const dados = {nome:(f.get('nome')||'').trim(), cargo:(f.get('cargo')||'').trim(), banca:(f.get('banca')||'').trim(), prova:f.get('prova')||'', ativo:!!f.get('ativo')};
+      if (!dados.nome) return;
+      if (id) Object.assign(c, dados);
+      else { const n = {id:uid(), ...dados, disc:[], tops:[]}; S.concursos.push(n); save(); fechar(); sImportar(n.id); render(); return; }
+      S.plano = null; save(); fechar(); render(); toast('Concurso salvo');
+    });
+  });
+}
+let apagarArmado = null;
+function apagarConcurso(id, bt){
+  if (apagarArmado!==id){ apagarArmado = id; bt.textContent = 'Toque de novo para apagar'; setTimeout(()=>{ if(apagarArmado===id){apagarArmado=null; if (bt.isConnected) bt.textContent='Apagar concurso';}}, 3000); return; }
+  apagarArmado = null;
+  S.concursos = S.concursos.filter(c=>c.id!==id);
+  const usados = new Set(); S.concursos.forEach(c=>c.tops.forEach(t=>usados.add(t)));
+  S.topicos = S.topicos.filter(t=>usados.has(t.id));
+  const dUsadas = new Set(S.topicos.map(t=>t.d)); S.sessoes.forEach(s=>dUsadas.add(s.d));
+  S.disciplinas = S.disciplinas.filter(d=>dUsadas.has(d.id));
+  S.plano = null; save(); fechar(); render(); toast('Concurso apagado');
+}
+
+/* tópico */
+function sTopico(id){
+  const t = T(id); if (!t) return; const d = D(t.d), st = t.st, hoje = today();
+  const e = estado(t,hoje);
+  const desc = !st.estudado ? 'Ainda não estudado.' :
+    `Estudado em ${fmtShort(st.estudado)}. ${st.rev||0} revisão${(st.rev||0)===1?'':'ões'}. Próxima em ${fmtShort(st.prox)}${st.prox<hoje?', atrasada':''}.`;
+  const em = S.concursos.filter(c=>c.tops.includes(t.id)).map(c=>c.nome);
+  sheet('Tópico', `<p class="small muted" style="margin:0">${esc(d?.nome||'')}${em.length?' · '+esc(em.join(', ')):''}</p>
+    <p style="margin:0;font-size:17px;line-height:1.4"><span class="${HL[e]}">${esc(t.t)}</span></p>
+    <p class="small" style="margin:0">${desc}${st.q?` Questões: ${st.a} de ${st.q} (${pct(st.a,st.q)}%).`:''}${st.dif?' Marcado como difícil.':''}</p>
+    ${st.estudado ? `<div class="field"><span>Revisei agora</span><div class="grades"><button class="grade" data-act="rev" data-id="${t.id}" data-n="bom" data-sheet="1">Lembrei bem</button><button class="grade" data-act="rev" data-id="${t.id}" data-n="esforco" data-sheet="1">Com esforço</button><button class="grade" data-act="rev" data-id="${t.id}" data-n="esqueci" data-sheet="1">Esqueci</button></div></div>` : ''}
+    <div class="block-actions">${st.estudado ? `<button class="btn" data-act="desmarcar" data-id="${t.id}">Voltar para não estudado</button>` : `<button class="btn primary" data-act="marcar" data-id="${t.id}">Marcar como estudado hoje</button>`}
+    <button class="btn" data-act="registrarTopico" data-id="${t.id}">Registrar estudo</button></div>
+    <hr class="sep">
+    <form data-form="editTop" data-id="${t.id}" style="display:grid;gap:10px"><div class="grid2" style="grid-template-columns:5em 1fr"><label class="field"><span>Nº</span><input name="cod" value="${esc(t.cod||'')}"></label><label class="field"><span>Texto</span><input name="t" value="${esc(t.t)}"></label></div>
+    <label class="switch"><span>Marcar como difícil</span><input type="checkbox" name="dif" ${st.dif?'checked':''}></label>
+    <button class="btn full" type="submit">Salvar alterações</button></form>
+    <button class="btn danger full" data-act="apagarTopico" data-id="${t.id}">Apagar tópico</button>`);
+}
+
+/* importar edital */
+function parseEdital(txt){
+  txt = String(txt||'').replace(/\r/g,'').replace(/ /g,' ');
+  const linhas = txt.split('\n').map(l=>l.replace(/[ \t]+$/,''));
+  // modo planilha: linhas com tabulação
+  const comTab = linhas.filter(l=>l.includes('\t'));
+  if (comTab.length >= 3 && comTab.length >= linhas.filter(l=>l.trim()).length*0.6){
+    const map = new Map();
+    comTab.forEach(l=>{ const [a,b] = l.split('\t').map(x=>(x||'').trim()); if (!a || !b) return; if (/^disciplina$/i.test(a)) return;
+      const m = b.match(/^(\d{1,2}(?:\.\d{1,2})*)[.)]?\s+(.*)$/); const nome = titleCase(a);
+      if (!map.has(nome)) map.set(nome, []); map.get(nome).push(m ? {cod:m[1], t:limpaT(m[2])} : {cod:'', t:limpaT(b)}); });
+    return [...map].map(([nome,tops])=>({nome, tops}));
+  }
+  const letras = s => s.replace(/[^A-Za-zÀ-ÿ]/g,'');
+  const maiusc = s => { const L = letras(s); return L.length>=4 && L.replace(/[^A-ZÀ-Þ]/g,'').length/L.length >= .85; };
+  const blocos = []; let atual = null;
+  linhas.forEach(raw=>{
+    const l = raw.trim(); if (!l) return;
+    const m = l.match(/^([^:\d][^:]{2,90}):\s*(.*)$/);
+    let cab = null, resto = '';
+    if (m && !/\d/.test(m[1]) && (maiusc(m[1]) || (m[1].split(/\s+/).length<=6 && /^[A-ZÀ-Þ]/.test(m[1]) && (!m[2] || /^\d/.test(m[2]))))) { cab = m[1]; resto = m[2]; }
+    else if (maiusc(l) && l.length<=100 && !/^\d/.test(l) && !/[.;]$/.test(l)) { cab = l.replace(/[:.\s]+$/,''); }
+    if (cab){ atual = {nome:titleCase(cab), txt:[]}; blocos.push(atual); if (resto) atual.txt.push(resto); }
+    else { if (!atual){ atual = {nome:'Sem disciplina', txt:[]}; blocos.push(atual); } atual.txt.push(l); }
+  });
+  return blocos.map(b=>({nome:b.nome, tops:quebraTopicos(b.txt.join(' '))})).filter(b=>b.tops.length);
+}
+function limpaT(s){ return s.replace(/\s+/g,' ').replace(/^[\s\-–•.;:]+/,'').replace(/[\s;,.]+$/,'').trim(); }
+function quebraTopicos(txt){
+  txt = txt.replace(/\s+/g,' ').trim();
+  const re = /(^|[\s.;:])(\d{1,2}(?:\.\d{1,2}){0,3})(?:\.(?!\d)|\)|\s?[-–])?\s+(?=["“(A-Za-zÀ-ÿ])/g;
+  const cands = []; let m;
+  while ((m = re.exec(txt))){ const ini = m.index + m[1].length; cands.push({ini, fim: re.lastIndex, path: m[2].split('.').map(Number)}); re.lastIndex = Math.max(re.lastIndex, ini+1); }
+  const ok = []; let prev = null;
+  const valido = (p, c) => {
+    if (!p) return c.length===1 && c[0]<=2;
+    if (c.length===p.length && c.slice(0,-1).join('.')===p.slice(0,-1).join('.') && c[c.length-1]===p[p.length-1]+1) return true;
+    if (c.length===p.length+1 && c.slice(0,-1).join('.')===p.join('.') && c[c.length-1]===1) return true;
+    if (c.length<p.length && c.slice(0,-1).join('.')===p.slice(0,c.length-1).join('.') && c[c.length-1]===p[c.length-1]+1) return true;
+    return false;
+  };
+  cands.forEach(c=>{ if (valido(prev, c.path)){ ok.push(c); prev = c.path; } });
+  if (ok.length < 2){
+    return txt.split(/;\s*|\.\s+(?=[A-ZÀ-Þ])/).map(limpaT).filter(s=>s.length>2).map(t=>({cod:'', t}));
+  }
+  const out = [];
+  ok.forEach((c,i)=>{ const fim = i+1<ok.length ? ok[i+1].ini : txt.length; const t = limpaT(txt.slice(c.fim, fim)); if (t) out.push({cod:c.path.join('.'), t}); });
+  return out;
+}
+let pdfLib = null;
+function carregaPdf(){
+  if (pdfLib) return Promise.resolve(pdfLib);
+  return new Promise((ok, err)=>{
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    s.onload = ()=>{ pdfLib = window.pdfjsLib; try{ pdfLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; }catch(e){} ok(pdfLib); };
+    s.onerror = ()=>err(new Error('sem rede'));
+    document.head.appendChild(s);
+  });
+}
+async function textoPdf(file){
+  const lib = await carregaPdf();
+  const doc = await lib.getDocument({data: new Uint8Array(await file.arrayBuffer())}).promise;
+  let out = '';
+  for (let i=1;i<=doc.numPages;i++){
+    const pg = await doc.getPage(i); const tc = await pg.getTextContent();
+    let lastY = null;
+    tc.items.forEach(it=>{ const y = it.transform ? Math.round(it.transform[5]) : null; if (lastY!==null && y!==null && Math.abs(y-lastY)>2) out += '\n'; out += it.str; if (it.hasEOL) out += '\n'; lastY = y; });
+    out += '\n';
+  }
+  return out;
+}
+let rascunho = null;
+function sImportar(cid){
+  if (!S.concursos.length){ sConcurso(); return; }
+  cid = cid || filtroEdital || S.concursos[0].id;
+  sheet('Importar edital', `<label class="field"><span>Concurso</span><select id="im-c">${S.concursos.map(c=>`<option value="${c.id}" ${c.id===cid?'selected':''}>${esc(c.nome)}</option>`).join('')}</select></label>
+    <label class="field"><span>Conteúdo programático</span><textarea id="im-t" placeholder="Cole aqui o trecho do edital, a partir do nome da primeira disciplina. Ex.:&#10;DIREITO ADMINISTRATIVO: 1 Estado, governo e administração pública. 2 Princípios. 2.1 ..."></textarea></label>
+    <div class="block-actions"><label class="btn" for="im-f">Abrir PDF ou TXT</label><input id="im-f" type="file" accept=".pdf,.txt,application/pdf,text/plain" hidden></div>
+    <p class="note">Disciplinas são reconhecidas por linhas em maiúsculas ou por "Nome da disciplina:". Tópicos, pela numeração (1, 1.1, 2...). Também aceita colar de planilha com duas colunas, disciplina e tópico. Você confere tudo na próxima etapa.</p>
+    <p class="small" id="im-msg" hidden></p>
+    <button class="btn primary full" id="im-go">Analisar</button>`, b=>{
+    const msg = t=>{ const el=b.querySelector('#im-msg'); el.hidden=!t; el.textContent=t||''; };
+    b.querySelector('#im-f').addEventListener('change', async e=>{
+      const f = e.target.files[0]; if (!f) return;
+      try{
+        msg('Lendo o arquivo...');
+        const txt = /pdf$/i.test(f.name)||f.type==='application/pdf' ? await textoPdf(f) : await f.text();
+        b.querySelector('#im-t').value = txt; msg('Texto carregado. Apague o que não for conteúdo programático e toque em Analisar.');
+      }catch(err){ msg('Não consegui ler este PDF. A primeira leitura de PDF precisa de internet; depois funciona offline. Se persistir, copie o texto do PDF e cole acima.'); }
+    });
+    b.querySelector('#im-go').addEventListener('click', ()=>{
+      const txt = b.querySelector('#im-t').value;
+      const res = parseEdital(txt);
+      if (!res.length){ msg('Não encontrei tópicos. Confira se colou o conteúdo programático com a numeração.'); return; }
+      rascunho = {c:b.querySelector('#im-c').value, discs:res.map(r=>({...r, inc:true, peso:1, abre:false}))};
+      sRevisaImport();
+    });
+  });
+}
+function sRevisaImport(){
+  const r = rascunho, c = C(r.c);
+  const exist = new Map(S.disciplinas.map(d=>[norm(d.nome), d]));
+  const total = r.discs.filter(d=>d.inc).reduce((a,d)=>a+d.tops.length,0);
+  sheet('Conferir edital', `<p class="small muted" style="margin:0">${esc(c.nome)}: ${r.discs.length} disciplinas, ${r.discs.reduce((a,d)=>a+d.tops.length,0)} tópicos. Ajuste nomes, pesos e remova o que sobrou. Disciplina com o mesmo nome de outra já cadastrada é compartilhada, e o progresso vale para os dois concursos.</p>
+    ${r.discs.map((d,i)=>`<div class="imp-disc">
+      <div class="row"><input type="checkbox" data-imp="inc" data-i="${i}" ${d.inc?'checked':''} aria-label="Incluir"><input class="input" type="text" data-imp="nome" data-i="${i}" value="${esc(d.nome)}" aria-label="Nome da disciplina"><input class="input" type="number" min="0" data-imp="peso" data-i="${i}" value="${d.peso}" aria-label="Peso"></div>
+      <div class="small muted">${d.tops.length} tópicos${exist.has(norm(d.nome))?' <span class="tag">já cadastrada</span>':''} · <button class="linkbtn" data-imp="abre" data-i="${i}">${d.abre?'esconder':'ver tópicos'}</button></div>
+      ${d.abre?`<div class="imp-tops">${d.tops.map((t,j)=>`<div><span class="tiny">${esc(t.cod)}</span><span>${esc(t.t)}</span><button data-imp="rm" data-i="${i}" data-j="${j}" aria-label="Remover tópico">×</button></div>`).join('')}</div>`:''}
+    </div>`).join('')}
+    <p class="tiny">O número ao lado do nome é o peso da disciplina neste concurso. Use, por exemplo, a quantidade de questões prevista no edital.</p>
+    <button class="btn primary full" data-imp="salvar">Importar ${total} tópicos</button>
+    <button class="btn ghost full" data-imp="voltar">Voltar ao texto</button>`, b=>{
+    b.addEventListener('input', e=>{ const el = e.target; const i = +el.dataset.i; const k = el.dataset.imp; if (!k) return;
+      if (k==='nome') r.discs[i].nome = el.value; if (k==='peso') r.discs[i].peso = +el.value||0; });
+    b.addEventListener('change', e=>{ const el = e.target; if (el.dataset.imp==='inc'){ r.discs[+el.dataset.i].inc = el.checked; sRevisaImport(); } });
+    b.addEventListener('click', e=>{ const el = e.target.closest('[data-imp]'); if (!el || el.tagName==='INPUT') return; const k = el.dataset.imp, i = +el.dataset.i;
+      if (k==='abre'){ r.discs[i].abre = !r.discs[i].abre; sRevisaImport(); }
+      if (k==='rm'){ r.discs[i].tops.splice(+el.dataset.j,1); sRevisaImport(); }
+      if (k==='voltar'){ sImportar(r.c); }
+      if (k==='salvar'){ aplicaImport(); }
+    });
+  });
+}
+function aplicaImport(){
+  const r = rascunho, c = C(r.c); let novos = 0;
+  r.discs.filter(d=>d.inc && d.nome.trim() && d.tops.length).forEach(pd=>{
+    let d = S.disciplinas.find(x=>norm(x.nome)===norm(pd.nome));
+    if (!d){ d = {id:uid(), nome:pd.nome.trim()}; S.disciplinas.push(d); }
+    let ord = S.topicos.filter(t=>t.d===d.id).reduce((a,t)=>Math.max(a,t.ord),0);
+    pd.tops.forEach(pt=>{
+      let t = S.topicos.find(x=>x.d===d.id && norm(x.t)===norm(pt.t));
+      if (!t){ t = {id:uid(), d:d.id, cod:pt.cod, t:pt.t, ord:++ord, st:{estudado:null,nivel:0,prox:null,rev:0,q:0,a:0,ult:null,dif:false}}; S.topicos.push(t); novos++; }
+      if (!c.tops.includes(t.id)) c.tops.push(t.id);
+    });
+    const cd = c.disc.find(x=>x.d===d.id); if (cd) cd.peso = pd.peso; else c.disc.push({d:d.id, peso:pd.peso});
+  });
+  rascunho = null; S.plano = null; save(); fechar(); rota = 'edital'; filtroEdital = c.id; render();
+  toast(novos ? `${novos} tópicos importados` : 'Edital vinculado ao concurso');
+}
+
+/* rotina */
+function sRotina(){
+  const c = S.cfg;
+  sheet('Rotina e regras', `<div class="field"><span>Horas líquidas por dia</span><div class="days">${[1,2,3,4,5,6,0].map(i=>`<label>${DIAS_S[i]}<input type="number" inputmode="decimal" min="0" max="16" step="0.5" data-dia="${i}" value="${+(c.minDia[i]/60).toFixed(2)}"></label>`).join('')}</div></div>
+    <div class="grid2"><label class="field"><span>Duração do bloco (min)</span><input type="number" id="cf-bloco" min="20" step="5" value="${c.bloco}"></label>
+    <label class="field"><span>Disciplinas por dia, no máximo</span><input type="number" id="cf-max" min="1" max="6" value="${c.maxDisc}"></label></div>
+    <label class="switch"><span>Não repetir a disciplina estudada ontem</span><input type="checkbox" id="cf-rep" ${c.naoRepetir?'checked':''}></label>
+    <label class="switch"><span>Reunir no mesmo dia as partes de um mesmo tema</span><input type="checkbox" id="cf-agr" ${c.agrupar?'checked':''}></label>
+    <p class="note">O plano reserva até um terço do dia para revisões vencidas e divide o resto em blocos. A ordem das disciplinas considera peso no edital, quanto falta ver, proximidade da prova, acerto nas questões e há quanto tempo a matéria está parada. Tópicos estudados voltam para revisão em 1, 7, 15, 30, 60 e 90 dias.</p>
+    <button class="btn primary full" id="cf-ok">Salvar e refazer o plano</button>`, b=>{
+    b.querySelector('#cf-ok').addEventListener('click', ()=>{
+      b.querySelectorAll('[data-dia]').forEach(i=>{ c.minDia[+i.dataset.dia] = Math.round((parseFloat(String(i.value).replace(',','.'))||0)*60); });
+      c.bloco = Math.max(20, +b.querySelector('#cf-bloco').value||50);
+      c.maxDisc = Math.min(6, Math.max(1, +b.querySelector('#cf-max').value||3));
+      c.naoRepetir = b.querySelector('#cf-rep').checked; c.agrupar = b.querySelector('#cf-agr').checked;
+      S.plano = null; save(); fechar(); render(); toast('Rotina salva');
+    });
+  });
+}
+
+/* links */
+function sLinks(){
+  const linha = (l,i)=>`<div class="grid2" style="grid-template-columns:1fr 1.6fr auto;align-items:end"><label class="field"><span>Nome</span><input data-l="nome" data-i="${i}" value="${esc(l.nome)}"></label><label class="field"><span>Endereço</span><input data-l="url" data-i="${i}" value="${esc(l.url)}" inputmode="url"></label><button class="x" data-l="rm" data-i="${i}" aria-label="Remover" style="margin-bottom:5px">${I.x}</button></div>`;
+  const pinta = b=>{ b.querySelector('#lk').innerHTML = S.links.map(linha).join(''); };
+  sheet('Plataformas', `<div id="lk" style="display:grid;gap:12px"></div><button class="btn" id="lk-add">Adicionar plataforma</button><button class="btn primary full" id="lk-ok">Salvar</button>`, b=>{
+    pinta(b);
+    b.addEventListener('input', e=>{ const el = e.target; if (!el.dataset.l) return; S.links[+el.dataset.i][el.dataset.l] = el.value.trim(); });
+    b.addEventListener('click', e=>{ const el = e.target.closest('[data-l="rm"]'); if (el){ S.links.splice(+el.dataset.i,1); pinta(b); } });
+    b.querySelector('#lk-add').addEventListener('click', ()=>{ S.links.push({id:uid(), nome:'', url:'https://'}); pinta(b); });
+    b.querySelector('#lk-ok').addEventListener('click', ()=>{ S.links = S.links.filter(l=>l.nome && /^https?:\/\/.+\..+/.test(l.url)); save(); fechar(); render(); toast('Plataformas salvas'); });
+  });
+}
+
+/* simulado */
+function sSimulado(){
+  if (!S.concursos.length){ toast('Cadastre um concurso antes.'); return; }
+  sheet('Registrar simulado', `<form style="display:grid;gap:14px" id="sm">
+    <div class="grid2"><label class="field"><span>Concurso</span><select name="c">${S.concursos.map(c=>`<option value="${c.id}">${esc(c.nome)}</option>`).join('')}</select></label><label class="field"><span>Data</span><input type="date" name="data" value="${today()}"></label></div>
+    <div class="grid3"><label class="field"><span>Nota ou acertos</span><input type="number" step="0.5" name="nota" required></label><label class="field"><span>Máximo</span><input type="number" step="0.5" name="max" required></label><label class="field"><span>Nota de corte</span><input type="number" step="0.5" name="corte"></label></div>
+    <button class="btn primary full" type="submit">Salvar simulado</button></form>`, b=>{
+    b.querySelector('#sm').addEventListener('submit', e=>{ e.preventDefault(); const f = new FormData(e.target);
+      const s = {id:uid(), c:f.get('c'), data:f.get('data')||today(), nota:+f.get('nota'), max:+f.get('max'), corte:+f.get('corte')||null};
+      if (!s.max || s.nota>s.max){ toast('Confira nota e máximo.'); return; }
+      S.simulados.push(s); save(); fechar(); render(); toast('Simulado salvo'); });
+  });
+}
+
+/* histórico */
+function sHistorico(){
+  const ses = S.sessoes.slice().sort((a,b)=>a.data<b.data?1:-1).slice(0,120);
+  const nomeT = {teoria:'Teoria',questoes:'Questões',revisao:'Revisão',leiseca:'Lei seca'};
+  sheet('Histórico', ses.length ? `<div class="list">${ses.map(s=>`<div class="li"><div><div class="a">${esc(D(s.d)?.nome||'Disciplina removida')}</div><div class="b">${fmtShort(s.data)}, ${nomeT[s.tipo]||''}${s.min?', '+fmtMin(s.min):''}${s.q?`, ${s.a}/${s.q} questões`:''}${s.tops?.length?`, ${s.tops.length} tópico${s.tops.length>1?'s':''}`:''}${s.obs?'. '+esc(s.obs):''}</div></div><button class="x" data-act="apagarSessao" data-id="${s.id}" aria-label="Apagar registro">${I.x}</button></div>`).join('')}</div><p class="tiny">Apagar um registro não desfaz as marcações de tópico feitas por ele.</p>` : '<p class="muted">Nenhum registro ainda.</p>');
+}
+
+/* backup */
+function sBackup(){
+  sheet('Backup', `<p class="small" style="margin:0">Seus dados ficam só neste iPhone. Exporte de vez em quando e guarde no app Arquivos ou no iCloud Drive.</p>
+    <div class="block-actions"><button class="btn primary" id="bk-dl">Exportar arquivo</button><button class="btn" id="bk-cp">Copiar dados</button></div>
+    <hr class="sep">
+    <label class="field"><span>Restaurar de arquivo</span><input type="file" id="bk-f" accept=".json,application/json"></label>
+    <label class="field"><span>Ou cole os dados copiados</span><textarea id="bk-t" placeholder='{"v":1, ...}'></textarea></label>
+    <button class="btn full" id="bk-ok">Restaurar</button>
+    <p class="tiny">Restaurar substitui tudo o que está no app agora.</p>`, b=>{
+    const json = ()=>JSON.stringify(S);
+    b.querySelector('#bk-dl').addEventListener('click', async ()=>{
+      const nome = 'marca-texto-'+today()+'.json';
+      const blob = new Blob([json()], {type:'application/json'});
+      try{
+        const file = new File([blob], nome, {type:'application/json'});
+        if (navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:nome}); return; }
+      }catch(e){ if (e && e.name==='AbortError') return; }
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nome; document.body.appendChild(a); a.click(); a.remove();
+      toast('Arquivo gerado');
+    });
+    b.querySelector('#bk-cp').addEventListener('click', ()=>{
+      const t = b.querySelector('#bk-t');
+      navigator.clipboard.writeText(json()).then(()=>toast('Dados copiados'), ()=>{ t.value = json(); t.select(); toast('Selecionado. Copie pelo menu.'); });
+    });
+    b.querySelector('#bk-f').addEventListener('change', async e=>{ const f = e.target.files[0]; if (f) b.querySelector('#bk-t').value = await f.text(); });
+    b.querySelector('#bk-ok').addEventListener('click', ()=>{
+      try{ const s = JSON.parse(b.querySelector('#bk-t').value); if (!s || !Array.isArray(s.topicos)) throw 0;
+        if (demo){ demo=false; }
+        S = Object.assign(blank(), s, {cfg:Object.assign(blank().cfg, s.cfg||{})}); S.plano=null; save(); fechar(); render(); toast('Dados restaurados');
+      }catch(err){ toast('Arquivo inválido. Use um backup exportado por este app.'); }
+    });
+  });
+}
+
+/* ---------- exemplo ---------- */
+function dadosExemplo(){
+  const s = blank(); s.intro = true;
+  const hoje = today();
+  const rnd = (()=>{ let x = 7; return ()=>{ x = (x*16807)%2147483647; return x/2147483647; }; })();
+  const edital = {
+    'Direito Administrativo':['Princípios da administração pública','Organização administrativa','Administração direta e indireta','Agências reguladoras','Atos administrativos','Atributos e elementos do ato','Anulação, revogação e convalidação','Poderes administrativos','Licitações na Lei n. 14.133/2021','Contratos administrativos','Serviços públicos','Responsabilidade civil do Estado','Improbidade administrativa','Processo administrativo na Lei n. 9.784/1999'],
+    'Direito Constitucional':['Poder constituinte','Controle de constitucionalidade','Direitos e garantias fundamentais','Organização do Estado','Poder Legislativo','Fiscalização contábil e orçamentária','Poder Executivo','Poder Judiciário','Funções essenciais à Justiça','Ordem econômica'],
+    'Direito Tributário':['Sistema tributário nacional','Limitações ao poder de tributar','Espécies tributárias','Obrigação tributária','Crédito tributário','Suspensão, extinção e exclusão','Responsabilidade tributária','Execução fiscal'],
+    'Direito Processual Civil':['Normas fundamentais','Fazenda Pública em juízo','Tutelas provisórias','Recursos','Cumprimento de sentença contra a Fazenda','Mandado de segurança','Ação civil pública']
+  };
+  const c = {id:'cx', nome:'Exemplo PGE', cargo:'Procurador', banca:'Cebraspe', prova:addDays(hoje,96), ativo:true, disc:[], tops:[]};
+  Object.entries(edital).forEach(([nome,tops],di)=>{
+    const d = {id:'d'+di, nome}; s.disciplinas.push(d); c.disc.push({d:d.id, peso:[3,3,2,2][di]});
+    tops.forEach((t,i)=>{ const grp = Math.floor(i/3)+1, sub = i%3+1;
+      const top = {id:d.id+'t'+i, d:d.id, cod:grp+'.'+sub, t, ord:i+1, st:{estudado:null,nivel:0,prox:null,rev:0,q:0,a:0,ult:null,dif:false}};
+      s.topicos.push(top); c.tops.push(top.id); });
+  });
+  s.concursos.push(c);
+  for (let k=42;k>=1;k--){
+    const dia = addDays(hoje,-k); if (rnd()<.18) continue;
+    const nBlocos = 1 + Math.floor(rnd()*3);
+    for (let b=0;b<nBlocos;b++){
+      const d = s.disciplinas[Math.floor(rnd()*s.disciplinas.length)];
+      const pend = s.topicos.filter(t=>t.d===d.id && !t.st.estudado);
+      const tipo = pend.length && rnd()<.42 ? 'teoria' : 'questoes';
+      const tops = tipo==='teoria' ? pend.slice(0,1) : [];
+      tops.forEach(t=>{ marcarEstudado(t, dia); let dd = dia; while (t.st.prox && t.st.prox < hoje && rnd()<.7){ dd = t.st.prox; revisar(t, rnd()<.8?'bom':'esforco', dd); } });
+      const q = tipo==='questoes' ? 10+Math.floor(rnd()*30) : (rnd()<.5?Math.floor(rnd()*15):0);
+      const base = {d0:.82,d1:.71,d2:.55,d3:.66}[d.id];
+      s.sessoes.push({id:uid(), data:dia, d:d.id, tipo, min:30+Math.floor(rnd()*5)*15, q, a:Math.round(q*Math.min(.97, base + (rnd()-.5)*.2)), pag:0, obs:'', tops:tops.map(t=>t.id)});
+    }
+  }
+  [[-35,58],[-21,63],[-7,71]].forEach(([dd,n])=>s.simulados.push({id:uid(), c:'cx', data:addDays(hoje,dd), nota:n, max:100, corte:68}));
+  return s;
+}
+
+/* ---------- timer ---------- */
+let tickI = null;
+function tickTimer(){
+  clearInterval(tickI);
+  if (!S.timer) return;
+  const upd = ()=>{ const el = $('#clock'); if (!el) return; const s = Math.floor((Date.now()-S.timer.ini)/1000); const h = Math.floor(s/3600); el.textContent = (h?h+':':'')+pad(Math.floor(s/60)%60)+':'+pad(s%60); };
+  upd(); tickI = setInterval(upd, 1000);
+}
+
+/* ---------- eventos ---------- */
+document.addEventListener('click', e=>{
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  const a = el.dataset.act, id = el.dataset.id;
+  if (a==='fecharFora'){ if (e.target===el) fechar(); return; }
+  switch(a){
+    case 'ir': rota = el.dataset.v; render(); window.scrollTo(0,0); break;
+    case 'fechar': fechar(); break;
+    case 'registrar': sRegistrar(); break;
+    case 'registrarBloco': { const b = plano().blocos[+el.dataset.i]; sRegistrar({d:b.d, tops:b.tops, tipo:b.tipo, min:b.min}); break; }
+    case 'registrarTopico': { const t = T(id); sRegistrar({d:t.d, tops:[t.id], tipo: t.st.estudado?'revisao':'teoria'}); break; }
+    case 'iniciarTimer': { const b = plano().blocos[+el.dataset.i]; S.timer = {ini:Date.now(), d:b.d, tops:b.tops, tipo:b.tipo}; save(); render(); window.scrollTo(0,0); break; }
+    case 'pararTimer': { const t = S.timer; const min = Math.max(1, Math.round((Date.now()-t.ini)/60000)); sRegistrar({d:t.d, tops:t.tops, tipo:t.tipo, min, fromTimer:true}); break; }
+    case 'refazerPlano': plano(true); render(); toast('Plano refeito'); break;
+    case 'rev': { const t = T(id); revisar(t, el.dataset.n, today()); save(); if (el.dataset.sheet) fechar(); render(); toast(`Próxima revisão em ${fmtShort(t.st.prox)}`); break; }
+    case 'novoConcurso': sConcurso(); break;
+    case 'editConcurso': sConcurso(id); break;
+    case 'apagarConcurso': apagarConcurso(id, el); break;
+    case 'importar': sImportar(); break;
+    case 'fEdital': filtroEdital = el.dataset.v; render(); break;
+    case 'fDes': filtroDes = el.dataset.v; render(); break;
+    case 'toggleD': abertas.has(id) ? abertas.delete(id) : abertas.add(id); render(); break;
+    case 'topico': sTopico(id); break;
+    case 'marcar': marcarEstudado(T(id), today()); S.plano && save(); save(); fechar(); render(); toast('Primeira revisão amanhã'); break;
+    case 'desmarcar': { const t = T(id); Object.assign(t.st, {estudado:null,nivel:0,prox:null,rev:0,ult:null}); save(); fechar(); render(); break; }
+    case 'apagarTopico': {
+      if (el.dataset.armado!=='1'){ el.dataset.armado='1'; el.textContent='Toque de novo para apagar'; return; }
+      S.topicos = S.topicos.filter(t=>t.id!==id); S.concursos.forEach(c=>c.tops = c.tops.filter(x=>x!==id)); S.plano=null; save(); fechar(); render(); toast('Tópico apagado'); break; }
+    case 'renomearD': {
+      const d = D(id);
+      sheet('Renomear disciplina', `<form id="rn" style="display:grid;gap:12px"><label class="field"><span>Nome</span><input name="n" value="${esc(d.nome)}"></label><button class="btn primary full">Salvar</button></form>`, b=>{
+        b.querySelector('#rn').addEventListener('submit', ev=>{ ev.preventDefault(); const n = new FormData(ev.target).get('n').trim(); if (n){ d.nome = n; save(); } fechar(); render(); }); });
+      break; }
+    case 'rotina': sRotina(); break;
+    case 'links': sLinks(); break;
+    case 'novoSimulado': sSimulado(); break;
+    case 'historico': sHistorico(); break;
+    case 'apagarSessao': S.sessoes = S.sessoes.filter(s=>s.id!==id); save(); sHistorico(); render(); break;
+    case 'backup': sBackup(); break;
+    case 'entrarDemo': demo = true; S = dadosExemplo(); rota='hoje'; render(); window.scrollTo(0,0); break;
+    case 'sairDemo': demo = false; S = load(); rota='hoje'; render(); window.scrollTo(0,0); break;
+  }
+});
+document.addEventListener('submit', e=>{
+  const f = e.target;
+  if (f.dataset.form==='addTop'){
+    e.preventDefault(); const v = (f.elements.t.value||'').trim(); if (!v) return;
+    const did = f.dataset.id; const ord = S.topicos.filter(t=>t.d===did).reduce((a,t)=>Math.max(a,t.ord),0)+1;
+    const t = {id:uid(), d:did, cod:'', t:v, ord, st:{estudado:null,nivel:0,prox:null,rev:0,q:0,a:0,ult:null,dif:false}};
+    S.topicos.push(t);
+    const alvo = filtroEdital ? [C(filtroEdital)] : ativos().filter(c=>c.disc.some(x=>x.d===did));
+    alvo.forEach(c=>{ c.tops.push(t.id); if (!c.disc.some(x=>x.d===did)) c.disc.push({d:did,peso:1}); });
+    save(); render(); toast('Tópico incluído');
+  }
+  if (f.dataset.form==='editTop'){
+    e.preventDefault(); const t = T(f.dataset.id); const fd = new FormData(f);
+    t.cod = (fd.get('cod')||'').trim(); t.t = (fd.get('t')||'').trim()||t.t; t.st.dif = !!fd.get('dif');
+    save(); fechar(); render(); toast('Tópico salvo');
+  }
+});
+document.addEventListener('change', e=>{
+  const el = e.target;
+  if (el.dataset.actChange==='peso'){ const c = C(filtroEdital); const cd = c && c.disc.find(x=>x.d===el.dataset.id); if (cd){ cd.peso = +el.value||0; S.plano=null; save(); toast('Peso salvo'); } }
+});
+document.addEventListener('keydown', e=>{ if (e.key==='Escape' && $('#layer').innerHTML) fechar(); });
+document.addEventListener('visibilitychange', ()=>{ if (!document.hidden && !demo && S.plano && S.plano.data!==today()) render(); });
+
+/* ---------- início ---------- */
+S = load();
+render();
+if ('serviceWorker' in navigator && location.protocol==='https:' && !/claude|anthropic|usercontent/.test(location.hostname)){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+window.__mt = {parseEdital, gerarPlano: ()=>gerarPlano(), get S(){return S}, set S(v){S=v}, dadosExemplo};
+})();
+</script>
+
+</body>
+</html>
